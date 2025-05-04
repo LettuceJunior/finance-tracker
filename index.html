@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Трекер витрат</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cat.css">
+  <link rel="icon" type="image/png" href="pig.png">
+  <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #f1f1f1;
+      --accent: #b388eb;
+      --danger: #e53935;
+      --muted: #999;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+
+    .category {
+      background-color: var(--card);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .category h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #2a2a2a;
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    input[type="number"]::placeholder {
+      color: var(--muted);
+    }
+
+    button {
+      padding: 8px 14px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #9b6fe9;
+    }
+
+    .delete-btn {
+      background: none;
+      color: var(--danger);
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      color: #111;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .total {
+      font-weight: 500;
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+<h1 style="color: #ccc;">Котик рахує скільки грошів витратив на корм (недостатньо)</h1>
+  <div id="categories-container"></div>
+  <script>
+    const categories = [
+      "Продукти", "Покупки", "Послуги", "Транспорт", 
+      "Розваги", "Подарунки", "Медицина", "Інше"
+    ];
+
+    const data = {};
+
+    function createCategoryElement(name) {
+      data[name] = [];
+
+      const container = document.createElement("div");
+      container.className = "category";
+
+      const title = document.createElement("h2");
+      title.textContent = name;
+
+      const inputGroup = document.createElement("div");
+      inputGroup.className = "input-group";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "Сіко там";
+      input.step = "0.01";
+      input.min = "0"
+      input.addEventListener('input', function(event) {
+      this.value = this.value.replace(/[^0-9.]/g, '');  // Дозволяємо вводити тільки цифри та крапку
+    });
+
+      const addButton = document.createElement("button");
+      addButton.textContent = "Додати";
+
+      const totalLabel = document.createElement("div");
+      totalLabel.className = "total";
+      totalLabel.textContent = "Загалом: 0 грн";
+
+      const list = document.createElement("ul");
+
+      inputGroup.appendChild(input);
+      inputGroup.appendChild(addButton);
+
+      container.appendChild(title);
+      container.appendChild(inputGroup);
+      container.appendChild(list);
+      container.appendChild(totalLabel);
+
+      function updateUI() {
+        list.innerHTML = "";
+        let total = 0;
+
+        data[name].forEach((amount, index) => {
+          const li = document.createElement("li");
+          li.textContent = `${amount.toFixed(2)} грн`;
+
+          const delBtn = document.createElement("button");
+          delBtn.innerHTML = "×";
+          delBtn.className = "delete-btn";
+          delBtn.onclick = () => {
+            data[name].splice(index, 1);
+            updateUI();
+          };
+
+          li.appendChild(delBtn);
+          list.appendChild(li);
+          total += amount;
+        });
+
+        totalLabel.textContent = `Загалом: ${total.toFixed(2)} грн`;
+      }
+
+      addButton.onclick = () => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) {
+          data[name].push(val);
+          input.value = "";
+          updateUI();
+        }
+      };
+
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addButton.click();
+      });
+
+      return container;
+    }
+
+    const container = document.getElementById("categories-container");
+    categories.forEach(cat => {
+      container.appendChild(createCategoryElement(cat));
+    });
+  </script>
+  <img src="cat-nice.gif" alt="котик" class="cat-animation" />
+
+</body>
+</html>
